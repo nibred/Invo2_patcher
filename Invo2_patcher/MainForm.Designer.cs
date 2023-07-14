@@ -42,7 +42,7 @@
             buttonChooseFile.Name = "buttonChooseFile";
             buttonChooseFile.Size = new Size(120, 32);
             buttonChooseFile.TabIndex = 0;
-            buttonChooseFile.Text = "Choose";
+            buttonChooseFile.Text = "Open";
             buttonChooseFile.UseVisualStyleBackColor = true;
             buttonChooseFile.Click += buttonChooseFile_Click;
             // 
