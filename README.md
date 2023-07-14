@@ -10,7 +10,7 @@ INVO2 Patcher is an independent tool developed by a third-party and is not affil
 
 ### Installation
 
-1. Download the latest version of INVO2 Patcher from the [releases](https://github.com/username/repo/releases) page.
+1. Download the latest version of INVO2 Patcher from the [releases](https://github.com/nibred/Invo2_patcher/releases/) page.
 2. Extract the downloaded ZIP file to a location of your choice.
 3. Navigate to the extracted folder and run `INVO2_Patcher.exe` as an administrator.
 
