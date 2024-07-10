@@ -6,7 +6,7 @@ namespace Invo2_patcher;
 internal class InvoPatcher
 {
     private readonly string BaseType = "INVO2.MainWindow";
-    private readonly string TargetMethodName = "licenc";
+    private readonly string TargetMethodName = "licencje";
     private readonly string _filepath;
     private readonly string _outputFilename;
     private AssemblyDefinition _assembly;
@@ -25,9 +25,10 @@ internal class InvoPatcher
 
         ClearMethodBody(ref targetMethod!);
 
-        targetMethod.Body.GetILProcessor().Body.InitLocals = true;
-        targetMethod.Body.GetILProcessor().Append(Instruction.Create(OpCodes.Ldc_I4_1));
-        targetMethod.Body.GetILProcessor().Append(Instruction.Create(OpCodes.Ret));
+        var processor = targetMethod.Body.GetILProcessor();
+
+        processor.Append(Instruction.Create(OpCodes.Ldc_I4_1));
+        processor.Append(Instruction.Create(OpCodes.Ret));
 
         return TryWriteFile();
     }
