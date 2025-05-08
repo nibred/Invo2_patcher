@@ -50,13 +50,13 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -c Release --no-restore --configuration Release --platform "Any CPU"
+      run: dotnet build -c Release --no-restore --platform "Any CPU"
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
     - name: Publish
-      run: dotnet publish -c Release --no-build --output ./publish --configuration Release --platform "Any CPU"
+      run: dotnet publish -c Release --no-build --output ./publish --platform "Any CPU"
 
     - name: Create Release
       id: create_release
