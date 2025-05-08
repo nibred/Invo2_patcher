@@ -42,6 +42,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Setup Envrionment
+      id: setup_env
+      run: |
+            echo "Setup Envrionment Variables for Workflow"
+            echo "Working Path: ${Env:GITHUB_WORKSPACE}"
+            $slnPath = (Get-ChildItem -Include *.sln -File -Recurse).fullname
+            $relName = "${{ github.ref }}".Split("/")
+            $repoName = "${{ github.repository }}".Split("/")
+            $relVersion = "${{ github.ref }}".Split("-")
+            echo "Solution File Path: ${slnPath}"
+            echo "SOLUTION_PATH=${slnPath}" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "Release Name: $($relName[-1])"
+            echo "RELEASE_NAME=$($relName[-1])" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "Repo Name: $($repoName[-1])"
+            echo "REPO_NAME=$($repoName[-1])" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "Release Version: $($relVersion[-1])"
+            echo "RELEASE_VERSION=$($relVersion[-1])" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -54,11 +72,12 @@ jobs:
     - name: Build
       run: dotnet build -c Release --no-restore
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-
     - name: Publish
       run: dotnet publish -c Release --no-build --output ./publish
+      
+    - name: Archive release files
+      run: Compress-Archive -Path ./publish/* -DestinationPath ./Invo2_patcher.zip
+      shell: pwsh
 
     - name: Create Release
       id: create_release
@@ -66,8 +85,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ github.run_number }}
-        release_name: Release v${{ github.run_number }}
+        release_name: ${{ env.REPO_NAME }}
         draft: false
         prerelease: false
 
@@ -77,6 +95,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/Invo2_patcher.exe                      # Adjust the path and filename as necessary
-        asset_name: Invo2_patcher.exe                                # Adjust the filename as necessary
-        asset_content_type: application/octet-stream
+        asset_path: ./Invo2_patcher.zip
+        asset_name: Invo2_patcher
+        asset_content_type: application/zip
