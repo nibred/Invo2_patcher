@@ -1,0 +1,60 @@
+name: .NET Core Desktop
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions   #jobsjob_idruns-on
+
+    env:
+      Solution_Name: Invo2_patcher.sln                         # Replace with your solution name.
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # Add MSBuild to the PATH: https://github.com/microsoft/setup-msbuild   
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    # Restore the application to populate the obj folder with RuntimeIdentifiers
+    - name: Restore the application
+      run: dotnet restore $env:Solution_Name
+
+    # Build the application
+    - name: Build the application
+      run: dotnet build $env:Solution_Name --configuration $env:Configuration --no-restore
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Publish the application
+    - name: Publish the application
+      run: dotnet publish $env:Solution_Name --configuration $env:Configuration --no-build --output ./publish
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Upload the build artifacts
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Build Artifacts
+        path: ./publish
