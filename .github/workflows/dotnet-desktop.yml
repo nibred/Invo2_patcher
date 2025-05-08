@@ -1,3 +1,30 @@
+# name: .NET
+
+# on:
+#   push:
+#     branches: [ "master" ]
+#   pull_request:
+#     branches: [ "master" ]
+
+# jobs:
+#   build:
+
+#     runs-on: windows-latest
+
+#     steps:
+#     - uses: actions/checkout@v4
+#     - name: Setup .NET
+#       uses: actions/setup-dotnet@v4
+#       with:
+#         dotnet-version: 8.0.x
+#     - name: Restore dependencies
+#       run: dotnet restore
+#     - name: Build
+#       run: dotnet build -c Release --no-restore
+#     - name: Test
+#       run: dotnet test --no-build --verbosity normal
+
+
 name: .NET
 
 on:
@@ -7,19 +34,47 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  build-and-release:
 
     runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
-      run: dotnet build -c Release --no-restore
+      run: dotnet build -c Release --no-restore --configuration Release --platform "Any CPU"
+
     - name: Test
       run: dotnet test --no-build --verbosity normal
+
+    - name: Publish
+      run: dotnet publish -c Release --no-build --output ./publish --configuration Release --platform "Any CPU"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
+
+    - name: Upload build artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./publish/Invo2_patcher.exe                      # Adjust the path and filename as necessary
+        asset_name: Invo2_patcher.exe                                # Adjust the filename as necessary
+        asset_content_type: application/octet-stream
