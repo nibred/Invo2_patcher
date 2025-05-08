@@ -16,6 +16,7 @@ jobs:
     env:
       Solution_Name: Invo2_patcher.sln                         # Replace with your solution name.
       Configuration: Release
+      Platform: Any CPU
 
     steps:
     - name: Checkout
